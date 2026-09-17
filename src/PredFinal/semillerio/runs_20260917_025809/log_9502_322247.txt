@@ -1,0 +1,631 @@
+[1] "Thu Sep 17 04:26:59 2026"
+         used (Mb) gc trigger (Mb) max used (Mb)
+Ncells 302948 16.2     709522 37.9   501925 26.9
+Vcells 525453  4.1    8388608 64.0  1977547 15.1
+Loading required package: data.table
+
+Attaching package: ‘data.table’
+
+The following object is masked from ‘package:base’:
+
+    %notin%
+
+Loading required package: R.utils
+Loading required package: R.oo
+Loading required package: R.methodsS3
+R.methodsS3 v1.8.2 (2022-06-13 22:00:14 UTC) successfully loaded. See ?R.methodsS3 for help.
+R.oo v1.27.1 (2025-05-02 21:00:05 UTC) successfully loaded. See ?R.oo for help.
+
+Attaching package: ‘R.oo’
+
+The following object is masked from ‘package:R.methodsS3’:
+
+    throw
+
+The following objects are masked from ‘package:methods’:
+
+    getClasses, getMethods
+
+The following objects are masked from ‘package:base’:
+
+    attach, detach, load, save
+
+R.utils v2.13.0 (2025-02-24 21:20:02 UTC) successfully loaded. See ?R.utils for help.
+
+Attaching package: ‘R.utils’
+
+The following object is masked from ‘package:utils’:
+
+    timestamp
+
+The following objects are masked from ‘package:base’:
+
+    cat, commandArgs, getOption, isOpen, nullfile, parse, use, warnings
+
+Loading required package: mice
+
+Attaching package: ‘mice’
+
+The following object is masked from ‘package:stats’:
+
+    filter
+
+The following objects are masked from ‘package:base’:
+
+    cbind, rbind
+
+inicio Corregir_Rotas()
+fin Corregir_rotas()
+          IPC dolar_blue dolar_oficial       UVA foto_mes
+        <num>      <num>         <num>     <num>    <num>
+ 1: 1.9903031   39.04545      38.43000 2.0014088   201901
+ 2: 1.9174404   38.40250      39.42800 1.9503255   201902
+ 3: 1.8296187   41.63947      42.54210 1.8932303   201903
+ 4: 1.7728863   44.27474      44.35421 1.8247220   201904
+ 5: 1.7212488   46.09546      46.08864 1.7460278   201905
+ 6: 1.6776304   45.06333      44.95500 1.6871348   201906
+ 7: 1.6431248   43.98333      43.75143 1.6361679   201907
+ 8: 1.5814483   54.84286      54.65048 1.5927530   201908
+ 9: 1.4947527   61.05952      58.79000 1.5549163   201909
+10: 1.4484038   65.54546      61.40318 1.4949101   201910
+11: 1.3913581   66.75000      63.01263 1.4197730   201911
+12: 1.3404220   72.36842      63.01158 1.3678188   201912
+13: 1.3154289   77.47727      62.98364 1.3136509   202001
+14: 1.2921698   78.19167      63.58056 1.2690535   202002
+15: 1.2472682   82.43421      65.20000 1.2381596   202003
+16: 1.2300475  101.08750      67.87200 1.2116567   202004
+17: 1.2118695  126.23684      70.04789 1.1770809   202005
+18: 1.1881073  125.85714      72.52095 1.1570339   202006
+19: 1.1693970  130.78261      75.32429 1.1388769   202007
+20: 1.1375457  133.40000      77.48850 1.1156994   202008
+21: 1.1065620  137.95454      79.43091 1.0936383   202009
+22: 1.0681100  170.61905      83.13476 1.0657172   202010
+23: 1.0370000  160.40000      85.48474 1.0362174   202011
+24: 1.0000000  153.05263      88.18167 1.0000000   202012
+25: 0.9680542  157.90000      91.47400 0.9669868   202101
+26: 0.9344153  149.38095      93.99778 0.9323750   202102
+27: 0.8882274  143.61539      96.63591 0.8958203   202103
+28: 0.8532444  146.25000      98.52600 0.8631994   202104
+29: 0.8251880  153.55000      99.61316 0.8253893   202105
+30: 0.8003764  162.00000     100.61905 0.7928919   202106
+31: 0.7763107  178.47826     101.61905 0.7666324   202107
+32: 0.7566381  180.87879     102.56905 0.7428976   202108
+33: 0.7289385  184.35714     103.78182 0.7216158   202109
+          IPC dolar_blue dolar_oficial       UVA foto_mes
+        <num>      <num>         <num>     <num>    <num>
+ [1] "mrentabilidad"                      "mrentabilidad_annual"              
+ [3] "mcomisiones"                        "mactivos_margen"                   
+ [5] "mpasivos_margen"                    "mcuenta_corriente"                 
+ [7] "mcaja_ahorro"                       "mcuentas_saldo"                    
+ [9] "mtarjeta_visa_consumo"              "mtarjeta_master_consumo"           
+[11] "mprestamos_personales"              "mpayroll"                          
+[13] "mttarjeta_visa_debitos_automaticos" "mcomisiones_mantenimiento"         
+[15] "mtransferencias_recibidas"          "Master_mfinanciacion_limite"       
+[17] "Master_msaldototal"                 "Master_mlimitecompra"              
+[19] "Master_mconsumototal"               "Master_mpagominimo"                
+[21] "Visa_mfinanciacion_limite"          "Visa_msaldototal"                  
+[23] "Visa_mlimitecompra"                 "Visa_mconsumototal"                
+[25] "Visa_mpagominimo"                  
+inicio drift_deflacion()
+fin drift_deflacion()
+ [1] "numero_de_cliente"                  "foto_mes"                          
+ [3] "internet"                           "cliente_edad"                      
+ [5] "cliente_antiguedad"                 "mrentabilidad"                     
+ [7] "mrentabilidad_annual"               "mcomisiones"                       
+ [9] "mactivos_margen"                    "mpasivos_margen"                   
+[11] "cproductos"                         "mcuenta_corriente"                 
+[13] "mcaja_ahorro"                       "cdescubierto_preacordado"          
+[15] "mcuentas_saldo"                     "ctarjeta_visa"                     
+[17] "ctarjeta_visa_transacciones"        "mtarjeta_visa_consumo"             
+[19] "ctarjeta_master"                    "ctarjeta_master_transacciones"     
+[21] "mtarjeta_master_consumo"            "cprestamos_personales"             
+[23] "mprestamos_personales"              "cpayroll_trx"                      
+[25] "mpayroll"                           "mttarjeta_visa_debitos_automaticos"
+[27] "ccomisiones_mantenimiento"          "mcomisiones_mantenimiento"         
+[29] "ccomisiones_otras"                  "mtransferencias_recibidas"         
+[31] "ccallcenter_transacciones"          "thomebanking"                      
+[33] "chomebanking_transacciones"         "ctrx_quarter"                      
+[35] "Master_status"                      "Master_mfinanciacion_limite"       
+[37] "Master_Fvencimiento"                "Master_msaldototal"                
+[39] "Master_mlimitecompra"               "Master_fultimo_cierre"             
+[41] "Master_fechaalta"                   "Master_mconsumototal"              
+[43] "Master_cconsumos"                   "Master_mpagominimo"                
+[45] "Visa_status"                        "Visa_mfinanciacion_limite"         
+[47] "Visa_Fvencimiento"                  "Visa_msaldototal"                  
+[49] "Visa_mlimitecompra"                 "Visa_fultimo_cierre"               
+[51] "Visa_fechaalta"                     "Visa_mconsumototal"                
+[53] "Visa_cconsumos"                     "Visa_mpagominimo"                  
+[55] "clase_ternaria"                    
+ [1] "numero_de_cliente"                  "foto_mes"                          
+ [3] "internet"                           "cliente_edad"                      
+ [5] "cliente_antiguedad"                 "mrentabilidad"                     
+ [7] "mrentabilidad_annual"               "mcomisiones"                       
+ [9] "mactivos_margen"                    "mpasivos_margen"                   
+[11] "cproductos"                         "mcuenta_corriente"                 
+[13] "mcaja_ahorro"                       "cdescubierto_preacordado"          
+[15] "mcuentas_saldo"                     "ctarjeta_visa"                     
+[17] "ctarjeta_visa_transacciones"        "mtarjeta_visa_consumo"             
+[19] "ctarjeta_master"                    "ctarjeta_master_transacciones"     
+[21] "mtarjeta_master_consumo"            "cprestamos_personales"             
+[23] "mprestamos_personales"              "cpayroll_trx"                      
+[25] "mpayroll"                           "mttarjeta_visa_debitos_automaticos"
+[27] "ccomisiones_mantenimiento"          "mcomisiones_mantenimiento"         
+[29] "ccomisiones_otras"                  "mtransferencias_recibidas"         
+[31] "ccallcenter_transacciones"          "thomebanking"                      
+[33] "chomebanking_transacciones"         "ctrx_quarter"                      
+[35] "Master_status"                      "Master_mfinanciacion_limite"       
+[37] "Master_Fvencimiento"                "Master_msaldototal"                
+[39] "Master_mlimitecompra"               "Master_fultimo_cierre"             
+[41] "Master_fechaalta"                   "Master_mconsumototal"              
+[43] "Master_cconsumos"                   "Master_mpagominimo"                
+[45] "Visa_status"                        "Visa_mfinanciacion_limite"         
+[47] "Visa_Fvencimiento"                  "Visa_msaldototal"                  
+[49] "Visa_mlimitecompra"                 "Visa_fultimo_cierre"               
+[51] "Visa_fechaalta"                     "Visa_mconsumototal"                
+[53] "Visa_cconsumos"                     "Visa_mpagominimo"                  
+[55] "clase_ternaria"                     "kmes"                              
+[57] "mpayroll_sobre_edad"               
+[1] 273
+  [1] "numero_de_cliente"                        
+  [2] "foto_mes"                                 
+  [3] "internet"                                 
+  [4] "cliente_edad"                             
+  [5] "cliente_antiguedad"                       
+  [6] "mrentabilidad"                            
+  [7] "mrentabilidad_annual"                     
+  [8] "mcomisiones"                              
+  [9] "mactivos_margen"                          
+ [10] "mpasivos_margen"                          
+ [11] "cproductos"                               
+ [12] "mcuenta_corriente"                        
+ [13] "mcaja_ahorro"                             
+ [14] "cdescubierto_preacordado"                 
+ [15] "mcuentas_saldo"                           
+ [16] "ctarjeta_visa"                            
+ [17] "ctarjeta_visa_transacciones"              
+ [18] "mtarjeta_visa_consumo"                    
+ [19] "ctarjeta_master"                          
+ [20] "ctarjeta_master_transacciones"            
+ [21] "mtarjeta_master_consumo"                  
+ [22] "cprestamos_personales"                    
+ [23] "mprestamos_personales"                    
+ [24] "cpayroll_trx"                             
+ [25] "mpayroll"                                 
+ [26] "mttarjeta_visa_debitos_automaticos"       
+ [27] "ccomisiones_mantenimiento"                
+ [28] "mcomisiones_mantenimiento"                
+ [29] "ccomisiones_otras"                        
+ [30] "mtransferencias_recibidas"                
+ [31] "ccallcenter_transacciones"                
+ [32] "thomebanking"                             
+ [33] "chomebanking_transacciones"               
+ [34] "ctrx_quarter"                             
+ [35] "Master_status"                            
+ [36] "Master_mfinanciacion_limite"              
+ [37] "Master_Fvencimiento"                      
+ [38] "Master_msaldototal"                       
+ [39] "Master_mlimitecompra"                     
+ [40] "Master_fultimo_cierre"                    
+ [41] "Master_fechaalta"                         
+ [42] "Master_mconsumototal"                     
+ [43] "Master_cconsumos"                         
+ [44] "Master_mpagominimo"                       
+ [45] "Visa_status"                              
+ [46] "Visa_mfinanciacion_limite"                
+ [47] "Visa_Fvencimiento"                        
+ [48] "Visa_msaldototal"                         
+ [49] "Visa_mlimitecompra"                       
+ [50] "Visa_fultimo_cierre"                      
+ [51] "Visa_fechaalta"                           
+ [52] "Visa_mconsumototal"                       
+ [53] "Visa_cconsumos"                           
+ [54] "Visa_mpagominimo"                         
+ [55] "clase_ternaria"                           
+ [56] "kmes"                                     
+ [57] "mpayroll_sobre_edad"                      
+ [58] "internet_lag1"                            
+ [59] "cliente_edad_lag1"                        
+ [60] "cliente_antiguedad_lag1"                  
+ [61] "mrentabilidad_lag1"                       
+ [62] "mrentabilidad_annual_lag1"                
+ [63] "mcomisiones_lag1"                         
+ [64] "mactivos_margen_lag1"                     
+ [65] "mpasivos_margen_lag1"                     
+ [66] "cproductos_lag1"                          
+ [67] "mcuenta_corriente_lag1"                   
+ [68] "mcaja_ahorro_lag1"                        
+ [69] "cdescubierto_preacordado_lag1"            
+ [70] "mcuentas_saldo_lag1"                      
+ [71] "ctarjeta_visa_lag1"                       
+ [72] "ctarjeta_visa_transacciones_lag1"         
+ [73] "mtarjeta_visa_consumo_lag1"               
+ [74] "ctarjeta_master_lag1"                     
+ [75] "ctarjeta_master_transacciones_lag1"       
+ [76] "mtarjeta_master_consumo_lag1"             
+ [77] "cprestamos_personales_lag1"               
+ [78] "mprestamos_personales_lag1"               
+ [79] "cpayroll_trx_lag1"                        
+ [80] "mpayroll_lag1"                            
+ [81] "mttarjeta_visa_debitos_automaticos_lag1"  
+ [82] "ccomisiones_mantenimiento_lag1"           
+ [83] "mcomisiones_mantenimiento_lag1"           
+ [84] "ccomisiones_otras_lag1"                   
+ [85] "mtransferencias_recibidas_lag1"           
+ [86] "ccallcenter_transacciones_lag1"           
+ [87] "thomebanking_lag1"                        
+ [88] "chomebanking_transacciones_lag1"          
+ [89] "ctrx_quarter_lag1"                        
+ [90] "Master_status_lag1"                       
+ [91] "Master_mfinanciacion_limite_lag1"         
+ [92] "Master_Fvencimiento_lag1"                 
+ [93] "Master_msaldototal_lag1"                  
+ [94] "Master_mlimitecompra_lag1"                
+ [95] "Master_fultimo_cierre_lag1"               
+ [96] "Master_fechaalta_lag1"                    
+ [97] "Master_mconsumototal_lag1"                
+ [98] "Master_cconsumos_lag1"                    
+ [99] "Master_mpagominimo_lag1"                  
+[100] "Visa_status_lag1"                         
+[101] "Visa_mfinanciacion_limite_lag1"           
+[102] "Visa_Fvencimiento_lag1"                   
+[103] "Visa_msaldototal_lag1"                    
+[104] "Visa_mlimitecompra_lag1"                  
+[105] "Visa_fultimo_cierre_lag1"                 
+[106] "Visa_fechaalta_lag1"                      
+[107] "Visa_mconsumototal_lag1"                  
+[108] "Visa_cconsumos_lag1"                      
+[109] "Visa_mpagominimo_lag1"                    
+[110] "kmes_lag1"                                
+[111] "mpayroll_sobre_edad_lag1"                 
+[112] "internet_lag2"                            
+[113] "cliente_edad_lag2"                        
+[114] "cliente_antiguedad_lag2"                  
+[115] "mrentabilidad_lag2"                       
+[116] "mrentabilidad_annual_lag2"                
+[117] "mcomisiones_lag2"                         
+[118] "mactivos_margen_lag2"                     
+[119] "mpasivos_margen_lag2"                     
+[120] "cproductos_lag2"                          
+[121] "mcuenta_corriente_lag2"                   
+[122] "mcaja_ahorro_lag2"                        
+[123] "cdescubierto_preacordado_lag2"            
+[124] "mcuentas_saldo_lag2"                      
+[125] "ctarjeta_visa_lag2"                       
+[126] "ctarjeta_visa_transacciones_lag2"         
+[127] "mtarjeta_visa_consumo_lag2"               
+[128] "ctarjeta_master_lag2"                     
+[129] "ctarjeta_master_transacciones_lag2"       
+[130] "mtarjeta_master_consumo_lag2"             
+[131] "cprestamos_personales_lag2"               
+[132] "mprestamos_personales_lag2"               
+[133] "cpayroll_trx_lag2"                        
+[134] "mpayroll_lag2"                            
+[135] "mttarjeta_visa_debitos_automaticos_lag2"  
+[136] "ccomisiones_mantenimiento_lag2"           
+[137] "mcomisiones_mantenimiento_lag2"           
+[138] "ccomisiones_otras_lag2"                   
+[139] "mtransferencias_recibidas_lag2"           
+[140] "ccallcenter_transacciones_lag2"           
+[141] "thomebanking_lag2"                        
+[142] "chomebanking_transacciones_lag2"          
+[143] "ctrx_quarter_lag2"                        
+[144] "Master_status_lag2"                       
+[145] "Master_mfinanciacion_limite_lag2"         
+[146] "Master_Fvencimiento_lag2"                 
+[147] "Master_msaldototal_lag2"                  
+[148] "Master_mlimitecompra_lag2"                
+[149] "Master_fultimo_cierre_lag2"               
+[150] "Master_fechaalta_lag2"                    
+[151] "Master_mconsumototal_lag2"                
+[152] "Master_cconsumos_lag2"                    
+[153] "Master_mpagominimo_lag2"                  
+[154] "Visa_status_lag2"                         
+[155] "Visa_mfinanciacion_limite_lag2"           
+[156] "Visa_Fvencimiento_lag2"                   
+[157] "Visa_msaldototal_lag2"                    
+[158] "Visa_mlimitecompra_lag2"                  
+[159] "Visa_fultimo_cierre_lag2"                 
+[160] "Visa_fechaalta_lag2"                      
+[161] "Visa_mconsumototal_lag2"                  
+[162] "Visa_cconsumos_lag2"                      
+[163] "Visa_mpagominimo_lag2"                    
+[164] "kmes_lag2"                                
+[165] "mpayroll_sobre_edad_lag2"                 
+[166] "internet_delta1"                          
+[167] "internet_delta2"                          
+[168] "cliente_edad_delta1"                      
+[169] "cliente_edad_delta2"                      
+[170] "cliente_antiguedad_delta1"                
+[171] "cliente_antiguedad_delta2"                
+[172] "mrentabilidad_delta1"                     
+[173] "mrentabilidad_delta2"                     
+[174] "mrentabilidad_annual_delta1"              
+[175] "mrentabilidad_annual_delta2"              
+[176] "mcomisiones_delta1"                       
+[177] "mcomisiones_delta2"                       
+[178] "mactivos_margen_delta1"                   
+[179] "mactivos_margen_delta2"                   
+[180] "mpasivos_margen_delta1"                   
+[181] "mpasivos_margen_delta2"                   
+[182] "cproductos_delta1"                        
+[183] "cproductos_delta2"                        
+[184] "mcuenta_corriente_delta1"                 
+[185] "mcuenta_corriente_delta2"                 
+[186] "mcaja_ahorro_delta1"                      
+[187] "mcaja_ahorro_delta2"                      
+[188] "cdescubierto_preacordado_delta1"          
+[189] "cdescubierto_preacordado_delta2"          
+[190] "mcuentas_saldo_delta1"                    
+[191] "mcuentas_saldo_delta2"                    
+[192] "ctarjeta_visa_delta1"                     
+[193] "ctarjeta_visa_delta2"                     
+[194] "ctarjeta_visa_transacciones_delta1"       
+[195] "ctarjeta_visa_transacciones_delta2"       
+[196] "mtarjeta_visa_consumo_delta1"             
+[197] "mtarjeta_visa_consumo_delta2"             
+[198] "ctarjeta_master_delta1"                   
+[199] "ctarjeta_master_delta2"                   
+[200] "ctarjeta_master_transacciones_delta1"     
+[201] "ctarjeta_master_transacciones_delta2"     
+[202] "mtarjeta_master_consumo_delta1"           
+[203] "mtarjeta_master_consumo_delta2"           
+[204] "cprestamos_personales_delta1"             
+[205] "cprestamos_personales_delta2"             
+[206] "mprestamos_personales_delta1"             
+[207] "mprestamos_personales_delta2"             
+[208] "cpayroll_trx_delta1"                      
+[209] "cpayroll_trx_delta2"                      
+[210] "mpayroll_delta1"                          
+[211] "mpayroll_delta2"                          
+[212] "mttarjeta_visa_debitos_automaticos_delta1"
+[213] "mttarjeta_visa_debitos_automaticos_delta2"
+[214] "ccomisiones_mantenimiento_delta1"         
+[215] "ccomisiones_mantenimiento_delta2"         
+[216] "mcomisiones_mantenimiento_delta1"         
+[217] "mcomisiones_mantenimiento_delta2"         
+[218] "ccomisiones_otras_delta1"                 
+[219] "ccomisiones_otras_delta2"                 
+[220] "mtransferencias_recibidas_delta1"         
+[221] "mtransferencias_recibidas_delta2"         
+[222] "ccallcenter_transacciones_delta1"         
+[223] "ccallcenter_transacciones_delta2"         
+[224] "thomebanking_delta1"                      
+[225] "thomebanking_delta2"                      
+[226] "chomebanking_transacciones_delta1"        
+[227] "chomebanking_transacciones_delta2"        
+[228] "ctrx_quarter_delta1"                      
+[229] "ctrx_quarter_delta2"                      
+[230] "Master_status_delta1"                     
+[231] "Master_status_delta2"                     
+[232] "Master_mfinanciacion_limite_delta1"       
+[233] "Master_mfinanciacion_limite_delta2"       
+[234] "Master_Fvencimiento_delta1"               
+[235] "Master_Fvencimiento_delta2"               
+[236] "Master_msaldototal_delta1"                
+[237] "Master_msaldototal_delta2"                
+[238] "Master_mlimitecompra_delta1"              
+[239] "Master_mlimitecompra_delta2"              
+[240] "Master_fultimo_cierre_delta1"             
+[241] "Master_fultimo_cierre_delta2"             
+[242] "Master_fechaalta_delta1"                  
+[243] "Master_fechaalta_delta2"                  
+[244] "Master_mconsumototal_delta1"              
+[245] "Master_mconsumototal_delta2"              
+[246] "Master_cconsumos_delta1"                  
+[247] "Master_cconsumos_delta2"                  
+[248] "Master_mpagominimo_delta1"                
+[249] "Master_mpagominimo_delta2"                
+[250] "Visa_status_delta1"                       
+[251] "Visa_status_delta2"                       
+[252] "Visa_mfinanciacion_limite_delta1"         
+[253] "Visa_mfinanciacion_limite_delta2"         
+[254] "Visa_Fvencimiento_delta1"                 
+[255] "Visa_Fvencimiento_delta2"                 
+[256] "Visa_msaldototal_delta1"                  
+[257] "Visa_msaldototal_delta2"                  
+[258] "Visa_mlimitecompra_delta1"                
+[259] "Visa_mlimitecompra_delta2"                
+[260] "Visa_fultimo_cierre_delta1"               
+[261] "Visa_fultimo_cierre_delta2"               
+[262] "Visa_fechaalta_delta1"                    
+[263] "Visa_fechaalta_delta2"                    
+[264] "Visa_mconsumototal_delta1"                
+[265] "Visa_mconsumototal_delta2"                
+[266] "Visa_cconsumos_delta1"                    
+[267] "Visa_cconsumos_delta2"                    
+[268] "Visa_mpagominimo_delta1"                  
+[269] "Visa_mpagominimo_delta2"                  
+[270] "kmes_delta1"                              
+[271] "kmes_delta2"                              
+[272] "mpayroll_sobre_edad_delta1"               
+[273] "mpayroll_sobre_edad_delta2"               
+Loading required package: lightgbm
+[1] 32938
+Thu Sep 17 04:27:57 2026  64, 64, 0.5 niter 91 AUC 0.931899103301411
+Thu Sep 17 04:28:19 2026  64, 64, 0.8 niter 89 AUC 0.930298880144478
+Thu Sep 17 04:29:04 2026  64, 256, 0.5 niter 147 AUC 0.932970742968257
+Thu Sep 17 04:29:27 2026  64, 256, 0.8 niter 94 AUC 0.931046371281114
+Thu Sep 17 04:30:14 2026  64, 512, 0.5 niter 152 AUC 0.932156109139125
+Thu Sep 17 04:30:42 2026  64, 512, 0.8 niter 163 AUC 0.932371150794028
+Thu Sep 17 04:31:22 2026  64, 1024, 0.5 niter 100 AUC 0.931864838059227
+Thu Sep 17 04:31:50 2026  64, 1024, 0.8 niter 150 AUC 0.932897156956353
+Thu Sep 17 04:32:44 2026  64, 2048, 0.5 niter 200 AUC 0.932136647010247
+Thu Sep 17 04:33:14 2026  64, 2048, 0.8 niter 136 AUC 0.933809002301884
+Thu Sep 17 04:33:57 2026  128, 64, 0.5 niter 96 AUC 0.931984782928204
+Thu Sep 17 04:34:21 2026  128, 64, 0.8 niter 63 AUC 0.9311640362063
+Thu Sep 17 04:35:04 2026  128, 256, 0.5 niter 94 AUC 0.932360345843021
+Thu Sep 17 04:35:41 2026  128, 256, 0.8 niter 197 AUC 0.930920148306048
+Thu Sep 17 04:36:24 2026  128, 512, 0.5 niter 96 AUC 0.932057972428144
+Thu Sep 17 04:36:54 2026  128, 512, 0.8 niter 86 AUC 0.931889355715641
+Thu Sep 17 04:37:38 2026  128, 1024, 0.5 niter 96 AUC 0.932724608166878
+Thu Sep 17 04:38:09 2026  128, 1024, 0.8 niter 96 AUC 0.931914897694627
+Thu Sep 17 04:38:58 2026  128, 2048, 0.5 niter 118 AUC 0.931883606292169
+Thu Sep 17 04:39:31 2026  128, 2048, 0.8 niter 93 AUC 0.932512011669083
+Thu Sep 17 04:40:23 2026  256, 64, 0.5 niter 122 AUC 0.930419221525419
+Thu Sep 17 04:41:00 2026  256, 64, 0.8 niter 102 AUC 0.929997233668201
+Thu Sep 17 04:41:51 2026  256, 256, 0.5 niter 99 AUC 0.931173949005389
+Thu Sep 17 04:42:28 2026  256, 256, 0.8 niter 89 AUC 0.93113353782777
+Thu Sep 17 04:43:18 2026  256, 512, 0.5 niter 94 AUC 0.932693019380447
+Thu Sep 17 04:44:03 2026  256, 512, 0.8 niter 129 AUC 0.931574921728538
+Thu Sep 17 04:44:54 2026  256, 1024, 0.5 niter 95 AUC 0.932565012101545
+Thu Sep 17 04:45:38 2026  256, 1024, 0.8 niter 106 AUC 0.933187866310969
+Thu Sep 17 04:46:45 2026  256, 2048, 0.5 niter 153 AUC 0.933540365446573
+Thu Sep 17 04:47:45 2026  256, 2048, 0.8 niter 89 AUC 0.932687798639594
+Thu Sep 17 04:49:14 2026  384, 64, 0.5 niter 148 AUC 0.931043000929424
+Thu Sep 17 04:49:59 2026  384, 64, 0.8 niter 97 AUC 0.930746674321991
+Thu Sep 17 04:50:50 2026  384, 256, 0.5 niter 73 AUC 0.931319534981343
+Thu Sep 17 04:51:33 2026  384, 256, 0.8 niter 69 AUC 0.931639982733226
+Thu Sep 17 04:52:31 2026  384, 512, 0.5 niter 96 AUC 0.931874618687662
+Thu Sep 17 04:53:20 2026  384, 512, 0.8 niter 99 AUC 0.931823666900344
+Thu Sep 17 04:54:19 2026  384, 1024, 0.5 niter 96 AUC 0.93311259512322
+Thu Sep 17 04:55:10 2026  384, 1024, 0.8 niter 92 AUC 0.933921281272899
+Thu Sep 17 04:56:06 2026  384, 2048, 0.5 niter 94 AUC 0.933482672955875
+Thu Sep 17 04:56:56 2026  384, 2048, 0.8 niter 89 AUC 0.932687137786321
+Thu Sep 17 04:58:00 2026  512, 64, 0.5 niter 119 AUC 0.929894107515012
+Thu Sep 17 04:58:57 2026  512, 64, 0.8 niter 128 AUC 0.928680913077176
+Thu Sep 17 04:59:53 2026  512, 256, 0.5 niter 73 AUC 0.931674016676765
+Thu Sep 17 05:00:44 2026  512, 256, 0.8 niter 69 AUC 0.930343884252342
+Thu Sep 17 05:01:48 2026  512, 512, 0.5 niter 97 AUC 0.930636510081449
+Thu Sep 17 05:02:51 2026  512, 512, 0.8 niter 98 AUC 0.933170023272609
+Thu Sep 17 05:03:55 2026  512, 1024, 0.5 niter 94 AUC 0.93331831874698
+Thu Sep 17 05:04:52 2026  512, 1024, 0.8 niter 86 AUC 0.933354665676973
+Thu Sep 17 05:05:49 2026  512, 2048, 0.5 niter 94 AUC 0.933482672955875
+Thu Sep 17 05:06:40 2026  512, 2048, 0.8 niter 89 AUC 0.932687137786321
+Key: <num_leaves, min_data_in_leaf, feature_fraction>
+    num_leaves min_data_in_leaf feature_fraction       AUC num_iterations
+         <num>            <num>            <num>     <num>          <int>
+ 1:         64               64              0.5 0.9318991             91
+ 2:         64               64              0.8 0.9302989             89
+ 3:         64              256              0.5 0.9329707            147
+ 4:         64              256              0.8 0.9310464             94
+ 5:         64              512              0.5 0.9321561            152
+ 6:         64              512              0.8 0.9323712            163
+ 7:         64             1024              0.5 0.9318648            100
+ 8:         64             1024              0.8 0.9328972            150
+ 9:         64             2048              0.5 0.9321366            200
+10:         64             2048              0.8 0.9338090            136
+11:        128               64              0.5 0.9319848             96
+12:        128               64              0.8 0.9311640             63
+13:        128              256              0.5 0.9323603             94
+14:        128              256              0.8 0.9309201            197
+15:        128              512              0.5 0.9320580             96
+16:        128              512              0.8 0.9318894             86
+17:        128             1024              0.5 0.9327246             96
+18:        128             1024              0.8 0.9319149             96
+19:        128             2048              0.5 0.9318836            118
+20:        128             2048              0.8 0.9325120             93
+21:        256               64              0.5 0.9304192            122
+22:        256               64              0.8 0.9299972            102
+23:        256              256              0.5 0.9311739             99
+24:        256              256              0.8 0.9311335             89
+25:        256              512              0.5 0.9326930             94
+26:        256              512              0.8 0.9315749            129
+27:        256             1024              0.5 0.9325650             95
+28:        256             1024              0.8 0.9331879            106
+29:        256             2048              0.5 0.9335404            153
+30:        256             2048              0.8 0.9326878             89
+31:        384               64              0.5 0.9310430            148
+32:        384               64              0.8 0.9307467             97
+33:        384              256              0.5 0.9313195             73
+34:        384              256              0.8 0.9316400             69
+35:        384              512              0.5 0.9318746             96
+36:        384              512              0.8 0.9318237             99
+37:        384             1024              0.5 0.9331126             96
+38:        384             1024              0.8 0.9339213             92
+39:        384             2048              0.5 0.9334827             94
+40:        384             2048              0.8 0.9326871             89
+41:        512               64              0.5 0.9298941            119
+42:        512               64              0.8 0.9286809            128
+43:        512              256              0.5 0.9316740             73
+44:        512              256              0.8 0.9303439             69
+45:        512              512              0.5 0.9306365             97
+46:        512              512              0.8 0.9331700             98
+47:        512             1024              0.5 0.9333183             94
+48:        512             1024              0.8 0.9333547             86
+49:        512             2048              0.5 0.9334827             94
+50:        512             2048              0.8 0.9326871             89
+    num_leaves min_data_in_leaf feature_fraction       AUC num_iterations
+         <num>            <num>            <num>     <num>          <int>
+$num_leaves
+[1] 384
+
+$min_data_in_leaf
+[1] 1024
+
+$feature_fraction
+[1] 0.8
+
+$num_iterations
+[1] 92
+
+    num_leaves min_data_in_leaf feature_fraction       AUC num_iterations
+         <num>            <num>            <num>     <num>          <int>
+ 1:        384             1024              0.8 0.9339213             92
+ 2:         64             2048              0.8 0.9338090            136
+ 3:        256             2048              0.5 0.9335404            153
+ 4:        384             2048              0.5 0.9334827             94
+ 5:        512             2048              0.5 0.9334827             94
+ 6:        512             1024              0.8 0.9333547             86
+ 7:        512             1024              0.5 0.9333183             94
+ 8:        256             1024              0.8 0.9331879            106
+ 9:        512              512              0.8 0.9331700             98
+10:        384             1024              0.5 0.9331126             96
+11:         64              256              0.5 0.9329707            147
+12:         64             1024              0.8 0.9328972            150
+13:        128             1024              0.5 0.9327246             96
+14:        256              512              0.5 0.9326930             94
+15:        256             2048              0.8 0.9326878             89
+16:        384             2048              0.8 0.9326871             89
+17:        512             2048              0.8 0.9326871             89
+18:        256             1024              0.5 0.9325650             95
+19:        128             2048              0.8 0.9325120             93
+20:         64              512              0.8 0.9323712            163
+21:        128              256              0.5 0.9323603             94
+22:         64              512              0.5 0.9321561            152
+23:         64             2048              0.5 0.9321366            200
+24:        128              512              0.5 0.9320580             96
+25:        128               64              0.5 0.9319848             96
+26:        128             1024              0.8 0.9319149             96
+27:         64               64              0.5 0.9318991             91
+28:        128              512              0.8 0.9318894             86
+29:        128             2048              0.5 0.9318836            118
+30:        384              512              0.5 0.9318746             96
+31:         64             1024              0.5 0.9318648            100
+32:        384              512              0.8 0.9318237             99
+33:        512              256              0.5 0.9316740             73
+34:        384              256              0.8 0.9316400             69
+35:        256              512              0.8 0.9315749            129
+36:        384              256              0.5 0.9313195             73
+37:        256              256              0.5 0.9311739             99
+38:        128               64              0.8 0.9311640             63
+39:        256              256              0.8 0.9311335             89
+40:         64              256              0.8 0.9310464             94
+41:        384               64              0.5 0.9310430            148
+42:        128              256              0.8 0.9309201            197
+43:        384               64              0.8 0.9307467             97
+44:        512              512              0.5 0.9306365             97
+45:        256               64              0.5 0.9304192            122
+46:        512              256              0.8 0.9303439             69
+47:         64               64              0.8 0.9302989             89
+48:        256               64              0.8 0.9299972            102
+49:        512               64              0.5 0.9298941            119
+50:        512               64              0.8 0.9286809            128
+    num_leaves min_data_in_leaf feature_fraction       AUC num_iterations
+         <num>            <num>            <num>     <num>          <int>
+[1] 910853
+  0%|          | 0.00/355k [00:00<?, ?B/s]100%|██████████| 355k/355k [00:00<00:00, 799kB/s]
+85 submissions remaining today. Successfully submitted to UTN 2026 virtual jr 
+  0%|          | 0.00/355k [00:00<?, ?B/s]100%|██████████| 355k/355k [00:00<00:00, 720kB/s]
+84 submissions remaining today. Successfully submitted to UTN 2026 virtual jr 
+  0%|          | 0.00/355k [00:00<?, ?B/s]100%|██████████| 355k/355k [00:00<00:00, 780kB/s]
+83 submissions remaining today. Successfully submitted to UTN 2026 virtual jr 
+  0%|          | 0.00/355k [00:00<?, ?B/s]100%|██████████| 355k/355k [00:00<00:00, 820kB/s]
+82 submissions remaining today. Successfully submitted to UTN 2026 virtual jr 
+  0%|          | 0.00/355k [00:00<?, ?B/s]100%|██████████| 355k/355k [00:00<00:00, 830kB/s]
+81 submissions remaining today. Successfully submitted to UTN 2026 virtual jr 
+  0%|          | 0.00/355k [00:00<?, ?B/s]100%|██████████| 355k/355k [00:00<00:00, 819kB/s]
+80 submissions remaining today. Successfully submitted to UTN 2026 virtual jr 
+  0%|          | 0.00/355k [00:00<?, ?B/s]100%|██████████| 355k/355k [00:00<00:00, 836kB/s]
+79 submissions remaining today. Successfully submitted to UTN 2026 virtual jr 
+Loading required package: yaml
+[1] "Thu Sep 17 05:10:49 2026"
