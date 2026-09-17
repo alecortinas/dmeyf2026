@@ -1,0 +1,649 @@
+---
+title: "FE_Hist_Analisis"
+output: html_document
+date: "2026-09-10"
+---
+
+```{r setup, include=FALSE}
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+library(stringr)
+library(lubridate)
+library(kableExtra)
+library(yaml)
+library(tidytext) 
+library(ggrepel)
+
+setwd("D:/Luciano/Maestria Data Mining/DMEyF/ExpColaborativos")
+
+
+
+```
+
+```{r}
+# Leo los datos de los distintos experimentos-semillas
+experimentos <- list.dirs(path = ".",recursive = FALSE)
+
+# excluimos los experimentos extra
+experimentos <- experimentos[experimentos %in% c("./Exp9110","./Exp9111","./Exp9112","./Exp9116","./Exp9117")]
+
+ganancias_maximas <- data.frame()
+df_importancia <- data.frame()
+tiempos_ejecucion <- data.frame()
+ganancias_data_total <- data.frame()
+
+# semillas iniciales de corrida y semillas agregadas para mejor significancia de tests
+semillas_iniciales <- c(116131, 187211, 322247, 390263, 430267, 487649, 522497, 569321, 906839, 992689)
+semillas_adicionales <- c(223063, 962867, 981947, 791261, 828833)
+
+# recorro los experimentos para extraer los datos
+for (experimento in experimentos) {
+
+  # experimento <- experimentos[1]
+  
+  subcarpeta <- list.dirs(experimento,recursive = FALSE)
+  
+  semillas <- list.dirs(path = subcarpeta,recursive = FALSE)
+  semillas <- semillas[str_detect(semillas,"semilla")]
+  
+  data_grafico <- data.frame()
+  cat("\nExpermiento: ",experimento,"\n")
+  exp_nombre <- str_remove(experimento,"./")
+  # recorro las carpetas de cada una de las semillas del experimento
+  for (semilla in semillas) {
+    
+    # Extrae solo los dígitos que están después de "semilla_" o al final del texto
+    semilla_num <- sub(".*semilla_?(\\d+).*", "\\1", semilla)
+    
+    # para Exp9117 se corrio con 15 semillas, pero con 10 era suficiente por lo tanto no tomamos las restantes 5
+    if (semilla_num %in% semillas_adicionales & str_remove(experimento,"./") == "Exp9117") {
+      next
+    }
+    
+    # semilla <- semillas[1]
+    # leo el archivo ganancias
+    ganancias <- read.delim(file = paste0(semilla,"/ganancias.txt"),header = TRUE)
+    
+    # agrego la columna de cantidad de envios en orden descendente de probabilidad de baja
+    ganancias$envios <- 1:nrow(ganancias)
+    
+    ganancias$semilla <- semilla_num
+    ganancias$semilla_tipo <- ifelse(ganancias$semilla %in% semillas_iniciales,"Inicial","Adicional")
+    
+    ganancias$Exp <- str_remove(experimento,"./")
+    
+    # acumulo los datos de las ganancias para luego graficar
+    data_grafico <- bind_rows(data_grafico,ganancias)
+    
+    # acumulo los datos de las ganancias de todas las semillas y todos los experimentos
+    ganancias_data_total <- bind_rows(ganancias_data_total,ganancias)
+    
+    # leo los datos de importancia
+    importancia_semilla <- read.delim(file = paste0(semilla,"/impo.txt"),header = TRUE)
+    importancia_semilla$semilla <- semilla_num
+    importancia_semilla$semilla_tipo <- ifelse(importancia_semilla$semilla %in% semillas_iniciales,"Inicial","Adicional")
+    
+    importancia_semilla$Exp <- str_remove(experimento,"./")
+    
+    # acumulo los datos de importancia para luego mostrar en tablas
+    df_importancia <- bind_rows(df_importancia,importancia_semilla)
+    
+    parametros <- read_yaml(file = paste0(semilla,"/PARAM.yml"))
+    # cat("\nSemilla: ",semilla_num," - ",semilla_num == parametros$semilla_primigenia)
+    # 
+    # Definimos los sufijos esperados a chequear
+    sufijos <- c("_lag1", "_lag2", "_lag3", "_delta1", "_delta2", "_delta3", "_ma3", "_ratio1", "_ratio2","_ma2","_ma4","_sd2","_sd4")
+    
+    # Comprobamos la presencia de cada sufijo en una sola línea
+    presentes <- sapply(sufijos, function(s) any(str_detect(importancia_semilla$Feature, fixed(s))))
+    
+    # Mostramos el resumen limpio en consola
+    cat("\n--- Verificación FE (Exp: ", exp_nombre, " | Semilla: ", semilla_num, ") ---\n")
+    print(presentes)
+    
+  }
+  
+  
+  
+  # realizaremoss un grafico por cada experimento donde se muestre la curva de ganancias por semilla y la curva
+  # promedio
+  # 1. Calculamos el promedio sobre las semillas
+  data_grafico_mean <- data_grafico %>% 
+    dplyr::group_by(envios) %>% 
+    dplyr::summarise(
+      gan_suavizada = mean(gan_suavizada, na.rm = TRUE),
+      gan_acum      = mean(gan_acum, na.rm = TRUE),
+      .groups       = "drop"
+    ) %>% 
+    dplyr::mutate(semilla = "Promedio")
+  
+  # 2. Identificamos el punto máximo de la curva Promedio
+  max_promedio <- data_grafico_mean %>% 
+    dplyr::filter(gan_suavizada == max(gan_suavizada, na.rm = TRUE)) %>% 
+    dplyr::slice(1) # Toma el primero en caso de empate
+  
+  # Texto a mostrar en el gráfico (con formato de miles en envíos y 2 decimales en ganancia)
+  texto_etiqueta <- paste0(
+    "Max Promedio: ", round(max_promedio$gan_suavizada, 2)
+  )
+  
+  # 3. Unimos el promedio al dataframe general
+  data_grafico_full <- dplyr::bind_rows(data_grafico, data_grafico_mean)
+  
+  # 4. Configuración de colores y grosores
+  semillas_unicas <- setdiff(unique(data_grafico$semilla), "Promedio")
+  
+  vector_colores <- c(
+    setNames(scales::hue_pal()(length(semillas_unicas)), semillas_unicas),
+    "Promedio" = "black"
+  )
+  
+  vector_grosores <- c(
+    setNames(rep(0.5, length(semillas_unicas)), semillas_unicas),
+    "Promedio" = 1.2
+  )
+  
+  # 5. Construcción del gráfico
+  p <- data_grafico_full %>% 
+    ggplot(aes(x = envios, y = gan_suavizada, colour = semilla, linewidth = semilla)) +
+    geom_line(alpha = 0.85) +
+    theme_bw() +
+    coord_cartesian(xlim = c(1000, 3500), ylim = c(70, 100)) +
+    scale_color_manual(values = vector_colores) +
+    scale_linewidth_manual(values = vector_grosores) +
+    
+    # --- ANOTACIÓN DEL MÁXIMO PROMEDIO ---
+    # Marcador (punto rojo) en el pico máximo del promedio
+    geom_point(
+      data = max_promedio,
+      aes(x = envios, y = gan_suavizada),
+      color = "red",
+      size = 3.5,
+      inherit.aes = FALSE
+    ) +
+    # Etiqueta con caja de texto arriba del punto
+    geom_label(
+      data = max_promedio,
+      aes(x = envios, y = gan_suavizada, label = texto_etiqueta),
+      color = "darkred",
+      fill = "white",
+      fontface = "bold",
+      size = 3.5,
+      vjust = -0.25, # Desplaza la etiqueta verticalmente por encima del punto
+      inherit.aes = FALSE
+    ) +
+    # ------------------------------------
+  
+  labs(
+    title = "Curvas de ganancia por semilla y Promedio",
+    subtitle = exp_nombre,
+    x = "Envíos", 
+    y = "Ganancia",
+    colour = "Semilla",
+    linewidth = "Semilla"
+  )
+  
+  # 2. Guardar con ggsave especificando dimensiones
+  ggsave(
+    filename = paste0("curva_de_ganancia_", exp_nombre, ".jpg"),
+    plot = p,
+    width = 10,
+    height = 6,
+    dpi = 300
+  )
+  
+  # busco el punto donde se maximiza la ganancia en cada semilla y con que cantidad de envios 
+  ganancia_max <- data_grafico %>% 
+    dplyr::group_by(semilla) %>% 
+    dplyr::summarise(Ganancia_Max_Suavizada = max(gan_suavizada,na.rm = TRUE),
+                     Envios_Ganancia_Max_Suavizada = which.max(gan_suavizada)) %>% 
+    dplyr::mutate(Experimento = exp_nombre)
+  
+  # acumulo la ganancia maxima por experimento
+  ganancias_maximas <- bind_rows(ganancias_maximas,ganancia_max) 
+  
+  log_path <- file.path(experimento, "secuencial.log")
+  
+  # Si el log está dentro del directorio del experimento
+  if (file.exists(log_path)) {
+    lines <- readLines(log_path, warn = FALSE)
+    
+    # Filtrar líneas de inicio y fin
+    lineas_inicio <- lines[str_detect(lines, "INICIO semilla")]
+    lineas_fin    <- lines[str_detect(lines, "(OK|FALLO)\\s+semilla")]
+    
+    # 1. Extraer y quedarse con la ÚLTIMA ocurrencia de INICIO por semilla
+    df_inicio <- data.frame(linea = lines[str_detect(lines, "INICIO semilla")]) %>%
+      extract(
+        linea, 
+        into = c("timestamp_start", "semilla"), 
+        regex = "===\\s+(.*?)\\s+INICIO semilla\\s+(\\d+)", 
+        remove = TRUE
+      ) %>%
+      mutate(timestamp_start = ymd_hms(timestamp_start)) %>%
+      group_by(semilla) %>%
+      slice_tail(n = 1) %>%  # Se queda con el último inicio registrado
+      ungroup()
+    
+    # 2. Extraer y quedarse con la ÚLTIMA ocurrencia de OK/FALLO por semilla
+    df_fin <- data.frame(linea = lines[str_detect(lines, "(OK|FALLO)\\s+semilla")]) %>%
+      extract(
+        linea, 
+        into = c("timestamp_end", "semilla"), 
+        regex = "===\\s+(.*?)\\s+(?:OK|FALLO)\\s+semilla\\s+(\\d+)", 
+        remove = TRUE
+      ) %>%
+      mutate(timestamp_end = ymd_hms(timestamp_end)) %>%
+      group_by(semilla) %>%
+      slice_tail(n = 1) %>%  # Se queda con el último fin registrado
+      ungroup()
+    
+    # 3. Join y cálculo de duración en minutos (garantiza 1 sola fila por semilla)
+    df_tiempos_exp <- inner_join(df_inicio, df_fin, by = "semilla") %>%
+      mutate(
+        Experimento  = exp_nombre,
+        Duracion_min = as.numeric(difftime(timestamp_end, timestamp_start, units = "mins"))
+      ) %>%
+      filter(Duracion_min >= 0) # Filtra posibles inconsistencias temporales
+    
+    tiempos_ejecucion <- bind_rows(tiempos_ejecucion, df_tiempos_exp)
+  }
+}
+
+# ── Resumen de tiempos por Experimento ───────────────────────
+resumen_tiempos <- tiempos_ejecucion %>%
+  dplyr::filter(!(Experimento=="Exp9117" & semilla %in% semillas_adicionales)) %>% 
+  group_by(Experimento) %>%
+  summarise(
+    Semillas_Completadas = n(),
+    Tiempo_Total_hs      = round(sum(Duracion_min, na.rm = TRUE) / 60, 2),
+    Promedio_por_Semilla_min = round(mean(Duracion_min, na.rm = TRUE), 2),
+    Minimo_min           = round(min(Duracion_min, na.rm = TRUE), 2),
+    Maximo_min           = round(max(Duracion_min, na.rm = TRUE), 2),
+    .groups = "drop"
+  )
+
+# Mostrar la tabla resumida de tiempos por experimento
+resumen_tiempos %>%
+  kbl(caption = "Resumen de Tiempos de Ejecución por Experimento", align = "c") %>%
+  kable_styling(bootstrap_options = c("striped", "hover"), full_width = FALSE)
+
+
+```
+
+
+```{r}
+#-------------------------- TESTS DE WILCOXON ---------------------------------------------#
+
+# genero tabla con la ganancia maxima por semilla y experimento
+ganancias_maximas_pivot <- ganancias_maximas %>% 
+  dplyr::select(-Envios_Ganancia_Max_Suavizada) %>% 
+  tidyr::pivot_wider(names_from = Experimento,values_from = Ganancia_Max_Suavizada,values_fill = NA)
+
+# Identificar las columnas de experimentos
+exps <- setdiff(colnames(ganancias_maximas_pivot), "semilla")
+
+# Crear matrices vacías para almacenar p-valores y estadísticos V
+matriz_p_values <- matrix(NA, nrow = length(exps), ncol = length(exps), dimnames = list(exps, exps))
+matriz_V <- matrix(NA, nrow = length(exps), ncol = length(exps), dimnames = list(exps, exps))
+
+# Con semillas iniciales
+
+ganancias_maximas_pivot_iniciales <- ganancias_maximas_pivot %>% 
+  dplyr::filter(semilla %in% semillas_iniciales)
+
+# Loop para automatizar el test (H1: Fila != Columna)
+for (e1 in exps) {
+  for (e2 in exps) {
+    if (e1 != e2) {
+      test <- wilcox.test(
+        x = ganancias_maximas_pivot_iniciales[[e1]], 
+        y = ganancias_maximas_pivot_iniciales[[e2]], 
+        paired = TRUE
+      )
+      matriz_p_values[e1, e2] <- round(test$p.value, 4)
+      matriz_V[e1, e2] <- test$statistic
+    }
+  }
+}
+
+# Convertir la matriz de p-valores a formato largo (tidy)
+df_pvalues <- as.data.frame(matriz_p_values) %>%
+  dplyr::mutate(Exp1 = rownames(matriz_p_values)) %>% 
+  tidyr::pivot_longer(cols = colnames(matriz_p_values), names_to = "Exp2", values_to = "p_val") %>%
+  mutate(
+    p_text = ifelse(is.na(p_val), "-", sprintf("%.4f", p_val)),
+    es_significativo = ifelse(!is.na(p_val) & p_val < 0.05, "p < 0.05", "No signif.")
+  )
+
+# Gráfico Heatmap
+ggplot(df_pvalues, aes(x = Exp2, y = factor(Exp1, levels = rev(unique(Exp1))), fill = p_val)) +
+  geom_tile(color = "white", linewidth = 0.8) +
+  geom_text(aes(label = p_text, fontface = ifelse(!is.na(p_val) & p_val < 0.05, "bold", "plain")), size = 4.5) +
+  scale_fill_gradient2(
+    low = "#2e7d32",     # Verde para p-valores muy bajos (significativos)
+    mid = "#a5d6a7",    # Verde claro
+    high = "#f5f5f5",   # Gris claro para p-valores altos
+    midpoint = 0.05,
+    na.value = "#e0e0e0",
+    name = "p-valor"
+  ) +
+  labs(
+    title = "Matriz de P-Valores - Test de Wilcoxon Pareado",
+    subtitle = "10 semillas iniciales",
+    x = "Experimento 2",
+    y = "Experimento 1"
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(
+    panel.grid = element_blank(),
+    axis.text.x = element_text(angle = 45, hjust = 1, face = "bold"),
+    axis.text.y = element_text(face = "bold"),
+    plot.title = element_text(face = "bold")
+  )
+
+# Con todas las semillas
+
+# Loop para automatizar el test (H1: Fila != Columna)
+for (e1 in exps) {
+  for (e2 in exps) {
+    if (e1 != e2) {
+      test <- wilcox.test(
+        x = ganancias_maximas_pivot[[e1]], 
+        y = ganancias_maximas_pivot[[e2]], 
+        paired = TRUE
+      )
+      matriz_p_values[e1, e2] <- round(test$p.value, 4)
+      matriz_V[e1, e2] <- test$statistic
+    }
+  }
+}
+
+# Convertir la matriz de p-valores a formato largo (tidy)
+df_pvalues <- as.data.frame(matriz_p_values) %>%
+  dplyr::mutate(Exp1 = rownames(matriz_p_values)) %>% 
+  tidyr::pivot_longer(cols = colnames(matriz_p_values), names_to = "Exp2", values_to = "p_val") %>%
+  mutate(
+    p_text = ifelse(is.na(p_val), "-", sprintf("%.4f", p_val)),
+    es_significativo = ifelse(!is.na(p_val) & p_val < 0.05, "p < 0.05", "No signif.")
+  )
+
+# Gráfico Heatmap
+ggplot(df_pvalues, aes(x = Exp2, y = factor(Exp1, levels = rev(unique(Exp1))), fill = p_val)) +
+  geom_tile(color = "white", linewidth = 0.8) +
+  geom_text(aes(label = p_text, fontface = ifelse(!is.na(p_val) & p_val < 0.05, "bold", "plain")), size = 4.5) +
+  scale_fill_gradient2(
+    low = "#2e7d32",     # Verde para p-valores muy bajos (significativos)
+    mid = "#a5d6a7",    # Verde claro
+    high = "#f5f5f5",   # Gris claro para p-valores altos
+    midpoint = 0.05,
+    na.value = "#e0e0e0",
+    name = "p-valor"
+  ) +
+  labs(
+    title = "Matriz de P-Valores - Test de Wilcoxon Pareado",
+    subtitle = "15 semillas",
+    x = "Experimento 2",
+    y = "Experimento 1"
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(
+    panel.grid = element_blank(),
+    axis.text.x = element_text(angle = 45, hjust = 1, face = "bold"),
+    axis.text.y = element_text(face = "bold"),
+    plot.title = element_text(face = "bold")
+  )
+
+# Formatear la matriz con colores condicionales en HTML
+matriz_p_values %>%
+  as.data.frame() %>%
+  mutate(across(everything(), ~ ifelse(is.na(.), "-", sprintf("%.4f", .)))) %>%
+  kbl(caption = "Matriz de P-Valores (Wilcoxon Signed-Rank Test)", align = "c") %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = FALSE) %>%
+  row_spec(0, bold = TRUE, background = "#2c3e50", color = "white") %>%
+  column_spec(1, bold = TRUE)
+```
+
+```{r}
+#---------------------- GANANCIA MAXIMA POR EXPERIMENTO-SEMILLA ---------------------- #
+
+# ── 1. MÉTRICA 1: Promedio de los Máximos (Teórico) ─────────────────────────
+# Paso A: Encontrar el máximo de ganancia para cada semilla individualmente
+maximos_por_semilla <- ganancias_data_total %>%
+  dplyr::group_by(Exp, semilla) %>%
+  dplyr::summarise(max_gan_semilla = max(gan_suavizada, na.rm = TRUE),
+            .groups = "drop")
+
+# Paso B: Promediar esos máximos por experimento
+promedio_de_maximos <- maximos_por_semilla %>%
+  dplyr::group_by(Exp) %>%
+  dplyr::summarise(Promedio_de_Maximos = mean(max_gan_semilla, na.rm = TRUE),
+                   .groups = "drop")
+
+# ── 2. MÉTRICA 2: Máximo del Promedio (Negocio / Producción) ────────────────
+# Paso A: Promediar las curvas entre todas las semillas para cada punto de envío
+curva_promedio <- ganancias_data_total %>%
+  dplyr::group_by(Exp, envios) %>%
+  dplyr::summarise(gan_suavizada_prom = mean(gan_suavizada, na.rm = TRUE),
+                   .groups = "drop")
+
+# Paso B: Buscar el pico máximo de esa curva promedio resultante
+maximo_del_promedio <- curva_promedio %>%
+  dplyr::group_by(Exp) %>%
+  dplyr::filter(gan_suavizada_prom == max(gan_suavizada_prom, na.rm = TRUE)) %>%
+  dplyr::slice(1) %>% # Evita empates
+  dplyr::rename(Maximo_del_Promedio = gan_suavizada_prom,
+                Envios_Optimos = envios) %>%
+  dplyr::ungroup()
+
+# ── 3. TABLA CONSOLIDADA FINAL ──────────────────────────────────────────────
+resumen_ganancias <- promedio_de_maximos %>%
+  dplyr::inner_join(maximo_del_promedio, by = "Exp")
+
+# Mostrar tabla profesional
+resumen_ganancias %>%
+  kbl(caption = "Consolidado: Promedio de Máximos vs. Máximo del Promedio",
+      col.names = c("Experimento","Promedio de Maximos","Envios Optimos de la curva Promedio","Maximo de la curva Promedio"),
+      digits = 2,
+      align = c("l", "c", "c", "c", "c")) %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = FALSE) %>%
+  row_spec(0, bold = TRUE, background = "#2c3e50", color = "white")
+
+# Mostrar tabla profesional
+ganancias_maximas %>%
+  dplyr::select(-Envios_Ganancia_Max_Suavizada) %>% 
+  dplyr::mutate(Ganancia_Max_Suavizada = as.character(round(Ganancia_Max_Suavizada,2))) %>% 
+  tidyr::pivot_wider(names_from = semilla,values_from = Ganancia_Max_Suavizada,values_fill = "-") %>% 
+  dplyr::left_join(y = promedio_de_maximos,by = c("Experimento"="Exp")) %>% 
+  dplyr::left_join(y = maximo_del_promedio %>% dplyr::select(-Envios_Optimos),by = c("Experimento"="Exp")) %>% 
+  dplyr::rename(Curva_Promedio = Maximo_del_Promedio) %>% 
+  kbl(caption = "Ganancia Maxima por Experimento y semilla (en millones de pesos)",
+    # col.names = c("Experimento","Promedio de Maximos","Envios Optimos de la curva Promedio","Maximo de la curva Promedio"),
+    digits = 2,
+    align = c("l",rep("c",16))) %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = FALSE) %>%
+  row_spec(0, bold = TRUE, background = "#2c3e50", color = "white")
+
+ganancias_maximas %>%
+  dplyr::select(-Ganancia_Max_Suavizada) %>% 
+  dplyr::mutate(Envios_Ganancia_Max_Suavizada = as.character(Envios_Ganancia_Max_Suavizada)) %>% 
+  tidyr::pivot_wider(names_from = semilla,values_from = Envios_Ganancia_Max_Suavizada,values_fill = "-") %>% 
+  dplyr::left_join(y = maximo_del_promedio %>% dplyr::select(-Maximo_del_Promedio),by = c("Experimento"="Exp")) %>% 
+  dplyr::rename(Curva_Promedio = Envios_Optimos) %>% 
+  kbl(caption = "Envios Optimos por Experimento y semilla",
+    digits = 2,
+    align = c("l",rep("c",16))) %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = FALSE) %>%
+  row_spec(0, bold = TRUE, background = "#2c3e50", color = "white")
+```
+
+
+
+```{r}
+# --------------------------- IMPORTANCIA DE VARIABLES ------------------------------ #
+
+# ── Asignar etiquetas de FE según la estructura de nombres ───────────────
+df_importancia_tagged <- df_importancia %>%
+  dplyr::mutate(
+    # Extraemos la transformación a partir del guion bajo (ej: _lag1, _delta2, _ma3, _sd2, _ratio1)
+    Tipo_FE = case_when(
+      str_detect(Feature, "_lag\\d+")   ~ "Lag",
+      str_detect(Feature, "_delta\\d+") ~ "Delta",
+      str_detect(Feature, "_ratio\\d+") ~ "Ratio",
+      str_detect(Feature, "_ma\\d+")    ~ "Moving Average (MA)",
+      str_detect(Feature, "_sd\\d+")    ~ "Moving SD",
+      TRUE                              ~ "Original / Base"
+    )
+  )
+
+# ── Top 20 por Experimento ───────────────────────────────────────────────
+df_top20_exp <- df_importancia_tagged %>%
+  dplyr::group_by(Exp, Feature, Tipo_FE) %>%
+  dplyr::summarise(Gain_Mean = mean(Gain, na.rm = TRUE), .groups = "drop") %>%
+  dplyr::group_by(Exp) %>%
+  dplyr::slice_max(order_by = Gain_Mean, n = 20, with_ties = FALSE) %>%
+  dplyr::ungroup()
+
+ggplot(df_top20_exp, aes(
+    x = reorder_within(Feature, Gain_Mean, Exp), 
+    y = Gain_Mean, 
+    fill = Tipo_FE
+  )) +
+  geom_col(show.legend = TRUE) +
+  coord_flip() +
+  scale_x_reordered() + # Limpia las extensiones creadas por reorder_within
+  facet_wrap(~ Exp, scales = "free_y", ncol = 2) +
+  scale_fill_manual(
+    values = c(
+      "Original / Base"    = "#7f8c8d", # Gris
+      "Lag"                = "#2980b9", # Azul
+      "Delta"              = "#27ae60", # Verde
+      "Ratio"              = "#e67e22", # Naranja
+      "Moving Average (MA)"= "#8e44ad", # Púrpura
+      "Moving SD"          = "#c0392b"  # Rojo
+    )
+  ) +
+  labs(
+    title = "Top 20 Features de Mayor Importancia (Gain) por Experimento",
+    subtitle = "Color según la transformación de Feature Engineering agregada",
+    x = NULL,
+    y = "Gain Promedio",
+    fill = "Tipo de Feature"
+  ) +
+  theme_bw(base_size = 11) +
+  theme(
+    legend.position = "bottom",
+    panel.grid.major.y = element_blank(),
+    strip.background = element_rect(fill = "#2c3e50"),
+    strip.text = element_text(color = "white", face = "bold")
+  )
+
+# ── Top 20 Global (Todos los experimentos juntos) ────────────────────────
+df_top20_global <- df_importancia_tagged %>%
+  dplyr::group_by(Feature, Tipo_FE) %>%
+  dplyr::summarise(Gain_Mean = mean(Gain, na.rm = TRUE), .groups = "drop") %>%
+  dplyr::slice_max(order_by = Gain_Mean, n = 20, with_ties = FALSE)
+
+ggplot(df_top20_global, aes(
+    x = reorder(Feature, Gain_Mean), 
+    y = Gain_Mean, 
+    fill = Tipo_FE
+  )) +
+  geom_col() +
+  coord_flip() +
+  scale_fill_manual(
+    values = c(
+      "Original / Base"    = "#7f8c8d",
+      "Lag"                = "#2980b9",
+      "Delta"              = "#27ae60",
+      "Ratio"              = "#e67e22",
+      "Moving Average (MA)"= "#8e44ad",
+      "Moving SD"          = "#c0392b"
+    )
+  ) +
+  labs(
+    title = "Top 20 Features Global de Mayor Importancia (Gain)",
+    subtitle = "Promedio general sobre todos los experimentos y semillas evaluados",
+    x = NULL,
+    y = "Gain Promedio Global",
+    fill = "Tipo de Feature"
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(
+    panel.grid.major.y = element_blank(),
+    plot.title = element_text(face = "bold"),
+    legend.position = "bottom"
+  )
+
+```
+
+
+```{r}
+# -------------------- CURVAS PROMEDIO DE CADA EXPERIMENTO ----------------------------- #
+# ── 1. Calcular la curva promedio por Experimento y Envíos ────────────────────
+df_curvas_promedio <- ganancias_data_total %>%
+  dplyr::filter(!is.na(gan_suavizada)) %>%
+  dplyr::group_by(Exp, envios) %>%
+  dplyr::summarise(
+    gan_suavizada_mean = mean(gan_suavizada, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+# ── 2. Encontrar el punto máximo (Máximo del Promedio) de cada experimento ───
+picos_promedio <- df_curvas_promedio %>%
+  dplyr::group_by(Exp) %>%
+  dplyr::filter(gan_suavizada_mean == max(gan_suavizada_mean, na.rm = TRUE)) %>%
+  dplyr::slice(1) %>%
+  dplyr::ungroup() %>%
+  dplyr::mutate(
+    etiqueta = sprintf("%s\nMax: $%.2fM (%s)", 
+                       Exp, 
+                       gan_suavizada_mean, # Ajustar divisor según escala de ganancia
+                       scales::comma(envios))
+  )
+
+# ── 3. Visualización con ggplot2 ──────────────────────────────────────────────
+p <- ggplot(df_curvas_promedio, aes(x = envios, y = gan_suavizada_mean, color = Exp)) +
+  geom_line(linewidth = 1.1, alpha = 0.85) +
+  # Puntos en los máximos
+  geom_point(data = picos_promedio, aes(x = envios, y = gan_suavizada_mean), size = 3) +
+  # Etiquetas de los picos máximos
+  geom_label_repel(
+    data = picos_promedio,
+    aes(x = envios, y = gan_suavizada_mean, label = etiqueta),
+    fontface = "bold",
+    size = 2.2,
+    box.padding = 0.5,
+    point.padding = 0.3,
+    show.legend = FALSE
+  ) +
+  scale_x_continuous(labels = scales::comma) +
+  scale_y_continuous(labels = function(x) paste0("$", x, "M")) + # Formato en Millones
+  coord_cartesian(xlim = c(1000, 3500),ylim = c(70,100)) + # Enfocar en la zona operativa de cortes
+  labs(
+    title = "Comparación de Curvas Promedio de Ganancia por Experimento",
+    subtitle = "Promedio de ganancia suavizada sobre todas las semillas evaluadas",
+    x = "Cantidad de Envíos",
+    y = "Ganancia Promedio Suavizada",
+    color = "Experimento"
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(
+    plot.title = element_text(face = "bold", size = 14),
+    legend.position = "bottom",
+    panel.grid.minor = element_blank()
+  )
+
+# 2. Guardar con ggsave especificando dimensiones
+ggsave(
+  filename = paste0("curva_de_ganancia_promedio.jpg"),
+  plot = p,
+  width = 10,
+  height = 6,
+  dpi = 300
+)
+
+```
+
+
