@@ -1,0 +1,111 @@
+semilla_primigenia: 906839.0
+experimento: 9508.0
+dataset: analistajr_competencia_2026.csv.gz
+CA:
+  metodo: MachineLearning
+DR:
+  metodo: deflacion
+trainingstrategy:
+  validate: 202107.0
+  training:
+  - 201901.0
+  - 201902.0
+  - 201903.0
+  - 201904.0
+  - 201905.0
+  - 201906.0
+  - 201907.0
+  - 201908.0
+  - 201909.0
+  - 201910.0
+  - 201911.0
+  - 201912.0
+  - 202001.0
+  - 202002.0
+  - 202003.0
+  - 202004.0
+  - 202005.0
+  - 202006.0
+  - 202007.0
+  - 202008.0
+  - 202009.0
+  - 202010.0
+  - 202011.0
+  - 202012.0
+  - 202101.0
+  - 202102.0
+  - 202103.0
+  - 202104.0
+  - 202105.0
+  training_pct: 1.0
+  positivos:
+  - BAJA+1
+  - BAJA+2
+  final_train:
+  - 201901.0
+  - 201902.0
+  - 201903.0
+  - 201904.0
+  - 201905.0
+  - 201906.0
+  - 201907.0
+  - 201908.0
+  - 201909.0
+  - 201910.0
+  - 201911.0
+  - 201912.0
+  - 202001.0
+  - 202002.0
+  - 202003.0
+  - 202004.0
+  - 202005.0
+  - 202006.0
+  - 202007.0
+  - 202008.0
+  - 202009.0
+  - 202010.0
+  - 202011.0
+  - 202012.0
+  - 202101.0
+  - 202102.0
+  - 202103.0
+  - 202104.0
+  - 202105.0
+  - 202106.0
+  - 202107.0
+  future: 202109.0
+lgbm:
+  param_fijos:
+    objective: binary
+    metric: auc
+    first_metric_only: yes
+    boost_from_average: yes
+    feature_pre_filter: no
+    verbosity: -100.0
+    force_row_wise: yes
+    seed: 906839.0
+    max_bin: 31.0
+    learning_rate: 0.03
+    feature_fraction: 0.5
+    num_iterations: 2048.0
+    early_stopping_rounds: 200.0
+    num_leaves: 64.0
+    min_data_in_leaf: 128.0
+out:
+  lgbm:
+    AUC: 0.9339786
+    mejores_hiperparametros:
+      num_leaves: 384.0
+      min_data_in_leaf: 1024.0
+      feature_fraction: 0.8
+      num_iterations: 102
+kaggle:
+  competencia: utn-2026-virtual-jr
+  cortes:
+  - 1800.0
+  - 1900.0
+  - 2000.0
+  - 2100.0
+  - 2200.0
+  - 2300.0
+  - 2400.0

@@ -52,6 +52,16 @@ Para correr con semillas distintas a las 10 por defecto:
 SEMILLAS="123456 789012" ./run_semillas.sh ../729_final_junior_COMBINADO.ipynb 9900
 ```
 
+**`run_semillas.sh` también sirve para correr el baseline** (no es exclusivo del combinado) —
+solo hay que pasarle la ruta al notebook del baseline en vez del combinado:
+
+```bash
+./run_semillas.sh <ruta_al_baseline.ipynb> 9500
+```
+
+Así se generaron las 10 corridas del baseline (`WF9500` a `WF9509`), que son las que se
+usan para la comparación con Wilcoxon del paso siguiente.
+
 ---
 
 ## Paso 2 — Armar el ensemble (promediar las semillas)
